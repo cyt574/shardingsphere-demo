@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:shardingsphere:classpath:shardingsphere.yaml
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    type: com.zaxxer.hikari.HikariDataSource
+  jackson:
+    date-format: "yyyy-MM-dd HH:mm:ss"
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

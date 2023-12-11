@@ -1,0 +1,62 @@
+mode:
+  type: Standalone
+  repository:
+    type: JDBC
+    props:
+      provider: MySQL
+      jdbc_url: jdbc:mysql://localhost:3306/shardingsphere_demo?characterEncoding=utf8&useSSL=false
+      username: root
+      password: 123456
+
+dataSources:
+  ds:
+    jdbcUrl: jdbc:mysql://localhost:3306/shardingsphere_demo?characterEncoding=utf8&useSSL=false
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+    connectionTimeoutMilliseconds: 3000
+    maxPoolSize: 15
+    minPoolSize: 5
+
+
+rules:
+- !SHARDING
+  tables:
+    t_order:
+      actualDataNodes: ds.t_order_$->{0..9}
+      tableStrategy:
+        standard:
+          shardingColumn: order_id
+          shardingAlgorithmName: t_order_inline
+      keyGenerateStrategy:
+        column: id
+        keyGeneratorName: snowflake
+      auditStrategy:
+        auditorNames:
+          - sharding_key_required_auditor
+        allowHintDisable: true
+  defaultShardingColumn: order_id
+  bindingTables:
+    - t_order
+  defaultDatabaseStrategy:
+    none:
+  defaultTableStrategy:
+    none:
+  shardingAlgorithms:
+    t_order_inline:
+      type: INLINE
+      props:
+        algorithm-expression: t_order_${order_id % 10}
+  keyGenerators:
+    snowflake:
+      type: SNOWFLAKE
+  auditors:
+    sharding_key_required_auditor:
+      type: DML_SHARDING_CONDITIONS
+- !SINGLE
+  tables:
+    - ds.*
+  defaultDataSource: ds
+props:
+  sql-show: true
